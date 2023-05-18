@@ -1,0 +1,120 @@
+%REM
+	Agent UnitTestDemo
+	Created Apr 4, 2023 by Paul Withers/UK/PNPHCL
+	Description: Comments for Agent
+%END REM
+Option Public
+Option Declare
+Use "VoltScriptTesting"
+%REM
+	Class Person
+	Description: Comments for Class
+%END REM
+Class Person
+	
+	Public firstName As String
+	Public lastName As String
+	Public age As Integer
+	Private pgender As String
+	
+	%REM
+		Property Get gender
+		Description: Getter for gender
+	%END REM
+	Property Get gender As String
+		gender = Me.pgender
+	End Property
+	
+	%REM
+		Property Set gender
+		Description: Setter for gender
+	%END REM
+	Property Set gender As String
+		If (gender <> "Male" And gender <> "Female" And gender <> "Other") Then Error 1400, "Invalid gender: Must be 'Male', 'Female' or 'Other'"
+		Me.pgender = gender
+	End Property
+
+End Class
+Sub Initialize
+	
+	Dim testRunner As New TestRunner("Validating Person Class")
+	Dim result As Boolean
+	result = testBasic(testRunner)
+	result = result And testGenderValidation(testRunner)
+	
+	If result Then Print "All test passed"
+	
+End Sub
+%REM
+	Function genderValidation
+	Description: Comments for Function
+%END REM
+Function testGenderValidation(testRunner As TestRunner) As Boolean
+	
+	Dim p As New Person
+	Dim testSuite As New TestSuite("Testing Gender Validation")
+	Call testRunner.addTestSuite(Testsuite)
+	
+	On Error GoTo mainErr
+	
+	Call testSuite.describe("Test creating a person does not accept 'Mail'")
+	p.firstName = "Paul"
+	p.lastName = "Withers"
+	p.age = 21
+	
+	On Error GoTo testErr
+	
+	p.gender = "Mail"
+	Call testSuite.addResult(False, "Setting gender to Mail should error")	'Successfully created a person
+	
+otherChecks:
+	On Error GoTo mainErr
+	Call testSuite.describe("Test p is a Person").assertIs("PERSON", p)
+	Call testSuite.describe("Test name is Paul Withers").assertEqualsString("Paul Withers", p.firstName & " " & p.lastName, False)
+	Call testSuite.describe("Test age is 21").assertEqualsInteger(21, p.age)
+	Call testSuite.describe("Test gender is not male").assertFalse(p.gender = "Male")
+	
+	testGenderValidation = testSuite.ranSuccessfully()
+	Exit Function
+	
+mainErr:
+	Call testSuite.addError("Error: " & Error & " on line " & Erl, Erl)
+	Resume Next
+	
+testErr:
+	Call testSuite.addResult(True, "")
+	Resume otherChecks
+
+End Function
+%REM
+	Function testBasic
+	Description: Comments for Function
+%END REM
+Function testBasic(testRunner As TestRunner) As Boolean
+	
+	Dim p As New Person
+	Dim testSuite As New TestSuite("Testing Basic Success")
+	Call testRunner.addTestSuite(Testsuite)
+	
+	On Error GoTo logErr
+	
+	Call testSuite.describe("Test creating a person")
+	p.firstName = "Paul"
+	p.lastName = "Withers"
+	p.age = 21
+	p.gender = "Male"
+	Call testSuite.addResult(True, "")	'Successfully created a person
+	Call testSuite.describe("Test p is a Person").assertIs("PERSON", p)
+	Call testSuite.describe("Test name is Paul Withers").assertEqualsString("Paul Withers", p.firstName & " " & p.lastName, False)
+	Call testSuite.describe("Test age is 21").assertEqualsInteger(21, p.age)
+	Call testSuite.describe("Test gender is male").assertTrue(p.gender = "Male")
+	
+	testBasic = testSuite.ranSuccessfully()
+	Exit Function
+	
+logErr:
+	Call testSuite.addError("Error: " & Error & " on line " & Erl, Erl)
+	Exit Function
+End Function
+
+
