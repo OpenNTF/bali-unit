@@ -1,7 +1,7 @@
-site_name: Bali Unit
-site_url: https://github01.hclpnp.com/pages/HCL-Janus/bali-unit/
+site_name: VoltScript Testing Framework
+site_url: https://github.com/pages/OpenNTF/bali-unit/
 site_description: >-
-  Bali Unit: Unit Testing classes for VoltScript
+  Unit Testing classes for VoltScript Modified for LotusScript
 # Theme Configuration
 theme:
   name: material
@@ -62,13 +62,13 @@ markdown_extensions:
 
 # Copyright
 copyright: >-
-  Copyright &copy; 2022, HCL America, Inc. -
+  Copyright &copy; 2022-3, HCL America, Inc. -
   <a href="#__consent">Change cookie settings</a>
 extra:
   productversion: 1.0.0
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/HCL-TECH-SOFTWARE
+      link: https://github.com/OpenNTF
   consent:
     title: Cookie consent
     description: >-
@@ -81,8 +81,8 @@ extra:
       - manage
 
 # Repository
-repo_url: https://github01.hclpnp.com/HCL-Janus/bali-unit/
-repo_name: HCL-Janus/bali-unit
+repo_url: https://github.com/OpenNTF/bali-unit/
+repo_name: OpenNTF/bali-unit
 edit_uri: edit/main/docs
 
 use_directory_urls: false

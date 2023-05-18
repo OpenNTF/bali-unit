@@ -1,0 +1,41 @@
+Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	Dim doc As NotesDocument
+	Set doc = source.Document
+	Dim errors As String
+	Dim validateAge As Boolean
+	
+	On Error Goto logErr
+	
+	Dim testSuite As New TestSuite("Validate doc")
+	testSuite.suppressReport = True
+	Call testSuite.describe("First Name must be more than 1 character").assertTrue(Len(Fulltrim(doc.FirstName(0))) > 1)
+	Call testSuite.describe("Last Name is required").assertNotEqualString("", doc.LastName(0))
+	
+	validateAge = testSuite.describe("Check age is completed").assertNotEqualPrimitiveOrPrimitiveArray("", Cstr(doc.Age(0)))
+	If validateAge Then
+		Call testSuite.describe("Check age is greater than 0").assertIsGreaterThan(0, doc.Age(0))
+		Call testSuite.describe("Check age is less than 110").assertIsLessThan(110, doc.Age(0))
+		Call testSuite.describe("Check age is not a decimal").assertTrue(Fraction(doc.Age(0)) = 0)
+	End If
+	
+	' There's no such thing as a radio button in a REST Service!
+	' If using Domino REST API, add formula on querysave
+	' If moving to VoltScript, in a custom REST Service, you will need to validate the value
+	Call testSuite.describe("Check gender is set").assertTrue(doc.Gender(0) <> "")
+	
+	Continue = testSuite.ranSuccessfully()	' If tests failed, abort QuerySave
+	
+	If Not continue Then
+		Forall t In testSuite.results
+			If (t.outcome <> "Passed") Then
+				errors = errors & t.description & Chr(10)
+			End If
+		End Forall
+		Msgbox errors, 16, "Validation Failed"
+	End If
+	Exit Sub
+	
+logErr:
+	Msgbox "Error " & Error() & " on line " & Erl()
+	Exit Sub
+End Sub
