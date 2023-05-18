@@ -1,5 +1,5 @@
 %REM
-	Copyright 2022 Paul Withers
+	Copyright 2022-2023 HCL America, Inc.
 	Licensed under the Apache License, Version 2.0 (the "License"); 
 	you may not use this file except in compliance with the License. 
 	You may obtain a copy of the License at
@@ -13,19 +13,19 @@
 %END REM
 %REM
 	Agent BasicTester
-	Created Mar 14, 2022 by Paul Withers/UK/PNPHCL
-	Description: Tests core functionality of a BaliUnit, no custom tester, no before/after code
+	Created Mar 14, 2022 by Paul Withers
+	Description: Tests core functionality of a VoltScript Testing Framework, no custom tester, no before/after code
 %END REM
 Option Public
 Option Declare
-Use "../src/VoltScriptTesting"
+Use "VoltScriptTesting"
 Sub Initialize
 	
-	Dim runner As BaliTestRunner
+	Dim runner As TestRunner
 	
 	' All tests are in subs, one for each test suite
 	
-	Set runner = New BaliTestRunner(|BasicTester|)
+	Set runner = New TestRunner(|BasicTester|)
 	runner.setOutputFormat("BOTH")
 	
 	Call testBooleansAndStrings(runner)
@@ -36,13 +36,12 @@ Sub Initialize
 	Call testNotEqual(runner)
 	
 End Sub
-
 %REM
 	testPrimitive
 	Runs tests for all primitive types against assertEqualsPrimitive
 %END REM
-Sub testPrimitives(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Primitive Tests|)
+Sub testPrimitives(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Primitive Tests|)
 	Dim a As Integer, b As Double, c As Single, d As Long, e As Boolean
 	
 	Call runner.addTestSuite(testSuite)
@@ -67,12 +66,8 @@ Sub testPrimitives(runner As BaliTestRunner)
 	Call testSuite.describe(|Test booleans, matching|).assertEqualsPrimitive(e, True)
 	Call testSuite.describe(|Test booleans, not matching|).assertEqualsPrimitive(e, False)
 	
-	Call testSuite.describe(|Test number and string|).assertEqualsPrimitive(1, |1|)
-
 	Call testSuite.describe(|Test strings, matching|).assertEqualsPrimitive(|foo|, |foo|)
 	Call testSuite.describe(|Test strings, not matching|).assertEqualsPrimitive(|foo|, |bar|)
-
-	Call testSuite.describe(|Missing assertion|)
 			
 End Sub
 %REM
@@ -90,8 +85,8 @@ End Function
 	Sub testNumbers
 	Runs all numeric tests
 %END REM
-Sub testNumbers(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Number Tests|)
+Sub testNumbers(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Number Tests|)
 	Dim a As Integer, b As Double, c As Single, d As Long
 	
 	Call runner.addTestSuite(testSuite)
@@ -118,24 +113,14 @@ Sub testNumbers(runner As BaliTestRunner)
 	Call testSuite.describe(|Test numeric, not matching|).assertEqualsNumeric(a, b)
 	b = 1.0
 	Call testSuite.describe(|Test numeric, matching|).assertEqualsNumeric(a, b)
-
-	Call testSuite.describe(|Test between|).assertIsBetween(1, 5, 1)
-	Call testSuite.describe(|Test not between - less|).assertIsBetween(1, 5, 0)
-	Call testSuite.describe(|Test not between - more|).assertIsBetween(1, 5, 8)
-
-	Call testSuite.describe(|Test greater than|).assertIsGreaterThan(1, 5)
-	Call testSuite.describe(|Test greater than - less|).assertIsGreaterThan(1, 0)
-
-	Call testSuite.describe(|Test less than|).assertIsLessThan(1, 0)
-	Call testSuite.describe(|Test less than - more|).assertIsLessThan(1, 5)
 	
 End Sub
 %REM
 	Sub testVariantArrays
 	Description: Tests variant arrays
 %END REM
-Sub testVariantArrays(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Variant Array Tests|)
+Sub testVariantArrays(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Variant Array Tests|)
 	Dim a(7) As Variant, b() As Variant
 	Dim i As integer
 	
@@ -184,8 +169,8 @@ End Function
 	Sub testVariants
 	Description: Tests all primitive variants
 %END REM
-Sub testVariants(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Complex Variants Tests|)
+Sub testVariants(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Complex Variants Tests|)
 	Dim a As Variant, b As Variant
 	
 	Call runner.addTestSuite(testSuite)
@@ -217,10 +202,10 @@ Sub testVariants(runner As BaliTestRunner)
 End Sub
 %REM
 	Sub testBooleansAndStrings
-	Description: Tests BaliUnit against booleans and strings
+	Description: Tests against booleans and strings
 %END REM
-Sub testBooleansAndStrings(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Boolean and String Tests|)
+Sub testBooleansAndStrings(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Boolean and String Tests|)
 	Dim a As Boolean
 	
 	Call runner.addTestSuite(testSuite)
@@ -232,9 +217,8 @@ Sub testBooleansAndStrings(runner As BaliTestRunner)
 	testSuite.describe("Test true basic boolean true").assertTrue(a)
 
 	Call testSuite.describe("Test error")
-	On Error GoTo catchTrueError
+	On Error Goto catchTrueError
 	Call testSuite.assertTrue(doTest())
-	
 nextTest:
 	On Error Resume Next
 	
@@ -243,18 +227,17 @@ nextTest:
 	
 	Call testSuite.describe("Test string equals insensitive pass").assertEqualsString("Foo", "foo", True)
 	Call testSuite.describe("Test string equals insensitive fail").assertEqualsString("Foo", "Bar", True)
-	Exit Sub
 	
 catchTrueError:
-	Call testSuite.addError(testSuite.getErrorMsg, ||)
+	Call testSuite.addError(testSuite.getErrorMsg, GetThreadInfo(12))
 	Resume nextTest
 End Sub
 %REM
 	Sub testNotEqual
 	Runs all assertNot... tests
 %END REM
-Sub testNotEqual(runner As BaliTestRunner)
-	Dim testSuite As New BaliTestSuite(|Not Equal|)
+Sub testNotEqual(runner As TestRunner)
+	Dim testSuite As New TestSuite(|Not Equal|)
 	Dim a As Integer, b As Double, c As Single, d As Long
 	Dim e As Variant, f(2) As Variant, g(2) As Variant
 	
@@ -304,6 +287,5 @@ Sub testNotEqual(runner As BaliTestRunner)
 	Call testSuite.describe(|Test primitive not matches array|).assertNotEqualPrimitiveOrPrimitiveArray(e, f)
 	Call testSuite.describe(|Test array not matches|).assertNotEqualPrimitiveOrPrimitiveArray(f, g)
 	Call testSuite.describe(|Test array not matches fails|).assertNotEqualPrimitiveOrPrimitiveArray(f, f)
-	Call testSuite.describe(|Test primitive integer and string|).assertNotEqualPrimitiveOrPrimitiveArray(e, "1")
-
+	
 End Sub
