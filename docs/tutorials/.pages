@@ -1,2 +1,4 @@
 nav:
     - Simple Unit Test: 1-simple.md
+    - 2-engage-testing.md
+    - 3-engage-validation.md
